@@ -1,0 +1,1544 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>a private note</title>
+  <style>
+    :root {
+      --bg: #050305;
+      --bg-soft: #0b0a10;
+      --text: #f7efe8;
+      --text-soft: #d6cabd;
+      --accent: #d89d8f;
+      --accent-soft: #b08b7b;
+      --glass: rgba(255, 255, 255, 0.08);
+      --glass-strong: rgba(255, 255, 255, 0.12);
+      --shadow: 0 30px 90px rgba(0, 0, 0, 0.4);
+      --border: rgba(255, 255, 255, 0.12);
+      --highlight: #fbe4ce;
+      --pulse: rgba(255, 179, 144, 0.18);
+      --heart: #dfb5a2;
+      --heart-soft: rgba(223, 181, 162, 0.32);
+      --safe-pad: max(env(safe-area-inset-top), 20px);
+      --section-gap: 2rem;
+      font-size: 16px;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      min-height: 100%;
+      height: 100%;
+    }
+
+    html, body {
+      margin: 0;
+      min-height: 100%;
+      background: radial-gradient(circle at top, rgba(255, 218, 193, 0.06), transparent 30%),
+                  linear-gradient(180deg, #070409 0%, #020101 100%);
+      color: var(--text);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      overflow-x: hidden;
+      overscroll-behavior: none;
+      -webkit-text-size-adjust: 100%;
+      text-rendering: optimizeLegibility;
+      touch-action: manipulation;
+    }
+
+    body {
+      min-height: 100vh;
+      padding-bottom: env(safe-area-inset-bottom);
+    }
+
+    img, picture, video, canvas, svg {
+      max-width: 100%;
+      display: block;
+    }
+
+    button, input {
+      font: inherit;
+    }
+
+    button {
+      border: 0;
+      border-radius: 999px;
+      padding: 0.95rem 1.7rem;
+      background: rgba(255, 255, 255, 0.08);
+      color: var(--text);
+      cursor: pointer;
+      backdrop-filter: blur(18px);
+      box-shadow: inset 0 0 0 1px rgba(255,255,255,0.08), 0 20px 50px rgba(0,0,0,0.2);
+      transition: transform 0.25s ease, background 0.25s ease, box-shadow 0.25s ease;
+      position: relative;
+      overflow: hidden;
+    }
+
+    button:hover,
+    button:focus-visible {
+      transform: translateY(-1px);
+      box-shadow: inset 0 0 0 1px rgba(255,255,255,0.16), 0 24px 70px rgba(0,0,0,0.28);
+      outline: none;
+    }
+
+    button.primary {
+      background: linear-gradient(135deg, rgba(248, 228, 203, 0.22), rgba(221, 148, 132, 0.16));
+      border: 1px solid rgba(255, 255, 255, 0.14);
+    }
+
+    button.secondary {
+      background: rgba(14, 12, 17, 0.9);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    button.small {
+      padding: 0.8rem 1.2rem;
+      font-size: 0.95rem;
+    }
+
+    main {
+      position: relative;
+      min-height: 100svh;
+      width: 100%;
+      overflow: hidden;
+    }
+
+    .screen {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: calc(var(--safe-pad) + 1rem) 1.2rem 2rem;
+      opacity: 0;
+      visibility: hidden;
+      transform: translateY(30px);
+      transition: opacity 0.85s ease, transform 0.85s ease, visibility 0s linear 0.85s;
+      overflow: hidden;
+    }
+
+    .screen.active {
+      opacity: 1;
+      visibility: visible;
+      transform: translateY(0);
+      transition-delay: 0s;
+    }
+
+    .panel {
+      width: min(740px, 100%);
+      margin: 0 auto;
+      display: grid;
+      gap: 1.6rem;
+      z-index: 3;
+    }
+
+    h1, h2, h3, p {
+      margin: 0;
+      line-height: 1.3;
+    }
+
+    .title {
+      font-size: clamp(2.6rem, 6vw, 4.7rem);
+      letter-spacing: -0.05em;
+      max-width: 12ch;
+      font-weight: 800;
+      text-transform: none;
+    }
+
+    .subtitle {
+      font-size: clamp(1rem, 2.2vw, 1.35rem);
+      color: var(--text-soft);
+      line-height: 1.8;
+      max-width: 32rem;
+    }
+
+    .text-block p {
+      color: var(--text-soft);
+      font-size: min(1.05rem, 1.1rem);
+    }
+
+    .line {
+      display: block;
+      opacity: 0;
+      transform: translateY(14px);
+      animation: floatIn 0.75s ease forwards;
+    }
+
+    .line.delay-1 { animation-delay: 0.35s; }
+    .line.delay-2 { animation-delay: 0.7s; }
+    .line.delay-3 { animation-delay: 1s; }
+    .line.delay-4 { animation-delay: 1.25s; }
+    .line.delay-5 { animation-delay: 1.55s; }
+    .line.delay-6 { animation-delay: 1.85s; }
+    .line.delay-7 { animation-delay: 2.1s; }
+    .line.delay-8 { animation-delay: 2.35s; }
+    .line.delay-9 { animation-delay: 2.6s; }
+    .line.delay-10 { animation-delay: 2.85s; }
+
+    @keyframes floatIn {
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .card {
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 28px;
+      padding: 1.6rem 1.45rem;
+      backdrop-filter: blur(28px);
+      box-shadow: 0 25px 70px rgba(0,0,0,0.18);
+      transition: transform 0.3s ease, border-color 0.3s ease, background 0.3s ease;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .card::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(circle at top right, rgba(255, 235, 220, 0.15), transparent 30%);
+      pointer-events: none;
+    }
+
+    .card strong {
+      display: block;
+      margin-bottom: 0.65rem;
+      font-size: 1.05rem;
+      letter-spacing: 0.02em;
+    }
+
+    .card p {
+      color: var(--text-soft);
+      margin: 0;
+    }
+
+    .card.selected {
+      border-color: rgba(248, 222, 194, 0.45);
+      background: rgba(255, 241, 224, 0.08);
+      transform: translateY(-4px);
+    }
+
+    .card-button {
+      width: 100%;
+      text-align: left;
+      cursor: pointer;
+      background: transparent;
+      color: inherit;
+      border: 0;
+      padding: 0;
+    }
+
+    .grid-2 {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 1rem;
+    }
+
+    .grid-3 {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 1rem;
+    }
+
+    .grid-2 > *,
+    .grid-3 > * {
+      min-height: 132px;
+    }
+
+    .tiny-note {
+      font-size: 0.95rem;
+      color: var(--text-soft);
+      padding-left: 0.2rem;
+    }
+
+    .accent-text {
+      color: var(--highlight);
+    }
+
+    .glass-panel {
+      padding: 1.6rem;
+      background: rgba(8, 6, 11, 0.78);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 28px;
+      backdrop-filter: blur(24px);
+      box-shadow: inset 0 0 0 1px rgba(255,255,255,0.02), 0 20px 60px rgba(0,0,0,0.18);
+      display: grid;
+      gap: 1rem;
+    }
+
+    .file-rows {
+      display: grid;
+      gap: 1rem;
+    }
+
+    .file-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 1rem;
+      padding: 1rem 1.1rem;
+      border-radius: 18px;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.08);
+      color: var(--text-soft);
+      overflow: hidden;
+      position: relative;
+    }
+
+    .file-row::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(120deg, transparent 30%, rgba(255,255,255,0.04) 50%, transparent 70%);
+      opacity: 0.3;
+      pointer-events: none;
+    }
+
+    .file-row strong {
+      color: var(--text);
+      font-weight: 700;
+    }
+
+    .unlock-button {
+      width: 100%;
+      padding: 1.1rem 1.6rem;
+      border-radius: 999px;
+      background: rgba(255,255,255,0.08);
+      border: 1px solid rgba(255,255,255,0.12);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.75rem;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .unlock-button::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(circle at center, rgba(250,231,213,0.18), transparent 35%);
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+
+    .unlock-button.active::after {
+      opacity: 1;
+    }
+
+    .heart-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 0.95rem;
+    }
+
+    .heart-item {
+      position: relative;
+      min-height: 148px;
+      border-radius: 28px;
+      border: 1px solid rgba(255,255,255,0.08);
+      background: rgba(255,255,255,0.06);
+      padding: 1.3rem;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      overflow: hidden;
+      backdrop-filter: blur(20px);
+      box-shadow: 0 20px 55px rgba(0,0,0,0.16);
+      cursor: pointer;
+      transition: transform 0.24s ease, border-color 0.24s ease;
+    }
+
+    .heart-item:hover {
+      transform: translateY(-3px);
+      border-color: rgba(255,255,255,0.18);
+    }
+
+    .heart-item strong {
+      font-size: 1rem;
+      font-weight: 700;
+      margin-bottom: 0.5rem;
+      letter-spacing: 0.01em;
+    }
+
+    .heart-item .hidden-copy {
+      opacity: 0;
+      transform: translateY(12px);
+      transition: opacity 0.35s ease, transform 0.35s ease;
+      color: var(--text-soft);
+      margin-top: 0.6rem;
+      line-height: 1.6;
+      font-size: 0.96rem;
+    }
+
+    .heart-item.opened .hidden-copy {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .heart-item.opened {
+      border-color: rgba(248, 198, 170, 0.45);
+      background: rgba(255, 239, 224, 0.08);
+    }
+
+    .hint-block {
+      color: var(--text-soft);
+      font-size: 0.97rem;
+      display: flex;
+      gap: 0.5rem;
+      align-items: center;
+    }
+
+    .hint-block::before {
+      content: "";
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.35);
+    }
+
+    .button-grid {
+      display: grid;
+      gap: 0.9rem;
+    }
+
+    .button-grid.two {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .button-grid.three {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    .action-btn {
+      min-height: 62px;
+      padding: 1.05rem 1.2rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 22px;
+      transition: transform 0.25s ease, border-color 0.25s ease, background 0.25s ease;
+    }
+
+    .action-btn.selected {
+      background: rgba(248, 226, 204, 0.16);
+      border-color: rgba(248, 222, 194, 0.5);
+      transform: translateY(-2px);
+    }
+
+    .action-btn:hover {
+      transform: translateY(-1px);
+      border-color: rgba(255,255,255,0.2);
+    }
+
+    .choice-note {
+      font-size: 0.95rem;
+      color: var(--text-soft);
+      padding: 0.9rem 1.1rem;
+      border-radius: 24px;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.08);
+    }
+
+    input[type="text"] {
+      width: 100%;
+      border: 1px solid rgba(255,255,255,0.12);
+      background: rgba(255,255,255,0.06);
+      color: var(--text);
+      border-radius: 22px;
+      padding: 1rem 1.2rem;
+      outline: none;
+      transition: border-color 0.25s ease, background 0.25s ease;
+    }
+
+    input[type="text"]:focus {
+      border-color: rgba(248, 222, 194, 0.6);
+      background: rgba(255,255,255,0.1);
+    }
+
+    .image-frame {
+      position: relative;
+      border-radius: 32px;
+      overflow: hidden;
+      border: 1px solid rgba(255,255,255,0.1);
+      background: linear-gradient(180deg, rgba(24,18,28,0.95), rgba(4,2,6,0.95));
+      box-shadow: 0 30px 80px rgba(0,0,0,0.25);
+      padding: 1.3rem;
+    }
+
+    .scene-card {
+      position: relative;
+      border-radius: 32px;
+      overflow: hidden;
+      min-height: 320px;
+      background: radial-gradient(circle at 30% 20%, rgba(255, 255, 255, 0.12), transparent 18%),
+                  linear-gradient(180deg, rgba(8,7,12,0.96) 0%, rgba(7,4,8,0.98) 100%);
+      display: grid;
+      gap: 1rem;
+      padding: 1.7rem;
+    }
+
+    .scene-card::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background-image: radial-gradient(circle, rgba(255,255,255,0.08) 2px, transparent 2px);
+      background-size: 24px 24px;
+      opacity: 0.18;
+      pointer-events: none;
+    }
+
+    .scene-card h2 {
+      font-size: clamp(1.6rem, 3vw, 2.3rem);
+      z-index: 1;
+    }
+
+    .shapes {
+      position: absolute;
+      inset: 0;
+      overflow: hidden;
+      pointer-events: none;
+    }
+
+    .shape-dot {
+      position: absolute;
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.08);
+      box-shadow: 0 0 18px rgba(255,255,255,0.12);
+      animation: drift 18s linear infinite;
+    }
+
+    .shape-dot.small { width: 8px; height: 8px; opacity: 0.45; }
+    .shape-dot.soft { background: rgba(255, 195, 165, 0.18); }
+
+    @keyframes drift {
+      from { transform: translateY(0) translateX(0); }
+      to { transform: translateY(-30px) translateX(20px); }
+    }
+
+    .candle-glow {
+      position: absolute;
+      left: 34%;
+      top: 42%;
+      width: 220px;
+      height: 220px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(248,228,211,0.28), transparent 55%);
+      filter: blur(16px);
+      opacity: 0.8;
+      pointer-events: none;
+    }
+
+    .scene-windows {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 1rem;
+      z-index: 1;
+    }
+
+    .window {
+      border-radius: 22px;
+      padding: 1rem;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.08);
+      min-height: 110px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .window::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(180deg, rgba(255,255,255,0.08), transparent 70%);
+      pointer-events: none;
+    }
+
+    .window strong {
+      display: block;
+      margin-bottom: 0.5rem;
+      font-size: 1rem;
+    }
+
+    .window p {
+      color: var(--text-soft);
+      margin: 0;
+      line-height: 1.6;
+    }
+
+    .timeline {
+      display: grid;
+      gap: 1.2rem;
+      padding: 1rem 0 1rem 0.5rem;
+    }
+
+    .timeline-step {
+      position: relative;
+      padding-left: 2.4rem;
+      opacity: 0.4;
+      transform: translateX(16px);
+      transition: opacity 0.5s ease, transform 0.5s ease;
+    }
+
+    .timeline-step.active {
+      opacity: 1;
+      transform: translateX(0);
+    }
+
+    .timeline-step::before {
+      content: "";
+      position: absolute;
+      left: 0;
+      top: 0.6rem;
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(248, 226, 204, 0.7), rgba(248, 226, 204, 0.12));
+      box-shadow: 0 0 16px rgba(248, 226, 204, 0.25);
+    }
+
+    .timeline-step strong {
+      display: block;
+      font-size: 1.05rem;
+      margin-bottom: 0.3rem;
+    }
+
+    .timeline-step p {
+      color: var(--text-soft);
+      margin: 0;
+      line-height: 1.7;
+    }
+
+    .footer-note {
+      font-size: 0.98rem;
+      color: var(--text-soft);
+      line-height: 1.7;
+    }
+
+    .small-button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 160px;
+      padding: 0.9rem 1.2rem;
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 999px;
+      color: var(--text);
+    }
+
+    .final-box {
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 32px;
+      padding: 2rem 1.7rem;
+      text-align: center;
+      backdrop-filter: blur(20px);
+      box-shadow: 0 25px 80px rgba(0,0,0,0.24);
+    }
+
+    .final-box h1 {
+      font-size: clamp(2.7rem, 5vw, 4rem);
+      margin-bottom: 1rem;
+    }
+
+    .final-box p {
+      color: var(--text-soft);
+      margin: 0.8rem 0;
+      line-height: 1.7;
+    }
+
+    .secret-note {
+      font-size: 0.98rem;
+      color: var(--accent);
+      border: 1px dashed rgba(248, 180, 150, 0.45);
+      padding: 1rem 1.2rem;
+      border-radius: 24px;
+      background: rgba(248, 221, 199, 0.08);
+    }
+
+    .progress-bar {
+      position: fixed;
+      left: 50%;
+      top: env(safe-area-inset-top, 16px);
+      transform: translateX(-50%);
+      z-index: 40;
+      display: flex;
+      align-items: center;
+      gap: 0.85rem;
+      padding: 0.55rem 0.9rem;
+      border-radius: 999px;
+      background: rgba(10, 8, 12, 0.72);
+      border: 1px solid rgba(255,255,255,0.08);
+      backdrop-filter: blur(18px);
+      color: var(--text-soft);
+      font-size: 0.92rem;
+      letter-spacing: 0.04em;
+    }
+
+    .progress-line {
+      width: 120px;
+      height: 3px;
+      border-radius: 999px;
+      background: rgba(255,255,255,0.08);
+      overflow: hidden;
+    }
+
+    .progress-fill {
+      width: 0%;
+      height: 100%;
+      background: linear-gradient(90deg, rgba(248, 226, 204, 0.95), rgba(199, 140, 115, 0.95));
+      border-radius: inherit;
+      transition: width 0.5s ease;
+    }
+
+    .particle {
+      position: fixed;
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      pointer-events: none;
+      mix-blend-mode: screen;
+      z-index: 50;
+      opacity: 0;
+      animation: particle-pop 0.75s forwards;
+    }
+
+    .particle.heart {
+      width: 14px;
+      height: 14px;
+      background: radial-gradient(circle at 50% 35%, rgba(248,231,216,0.95), transparent 48%),
+                  radial-gradient(circle at 30% 30%, rgba(235,168,145,0.95), transparent 45%);
+      clip-path: path('M12 8C12 5.8 10.2 4 8 4C6.8 4 5.7 4.5 5 5.4C4.3 4.5 3.2 4 2 4C-0.2 4 -2 5.8 -2 8C-2 11.4 4 15 8 19C12 15 18 11.4 18 8C18 5.8 16.2 4 14 4C12.8 4 11.7 4.5 11 5.4C10.3 4.5 9.2 4 8 4C5.8 4 4 5.8 4 8Z');
+    }
+
+    @keyframes particle-pop {
+      0% { opacity: 0; transform: translate3d(0,0,0) scale(0.6); }
+      30% { opacity: 1; transform: translate3d(var(--tx), var(--ty), 0) scale(1.05); }
+      100% { opacity: 0; transform: translate3d(calc(var(--tx) * 1.4), calc(var(--ty) * 1.4), 0) scale(0.6); }
+    }
+
+    .glow-dot {
+      position: absolute;
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      background: rgba(255, 207, 171, 0.35);
+      box-shadow: 0 0 22px rgba(255, 210, 175, 0.45);
+      animation: pulse 2.8s infinite ease-in-out;
+      cursor: pointer;
+    }
+
+    @keyframes pulse {
+      0%,100% { transform: scale(1); opacity: 0.85; }
+      50% { transform: scale(1.25); opacity: 0.55; }
+    }
+
+    .title-trigger {
+      cursor: pointer;
+    }
+
+    .hidden-panel {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.7s ease, opacity 0.7s ease;
+      opacity: 0;
+    }
+
+    .hidden-panel.open {
+      max-height: 350px;
+      opacity: 1;
+    }
+
+    .hidden-panel p {
+      margin-top: 1rem;
+    }
+
+    @media (max-width: 900px) {
+      .grid-2 { grid-template-columns: 1fr; }
+      .grid-3 { grid-template-columns: 1fr; }
+      .scene-windows { grid-template-columns: 1fr; }
+      .progress-bar { width: min(92vw, 320px); }
+      .title { font-size: clamp(2.4rem, 10vw, 3.6rem); }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { animation-duration: 0.001ms !important; animation-iteration-count: 1 !important; transition-duration: 0.001ms !important; scroll-behavior: auto !important; }
+    }
+
+    .section-background {
+      position: absolute;
+      inset: 0;
+      z-index: 1;
+      pointer-events: none;
+      opacity: 0.9;
+    }
+
+    .section-background::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(circle at 20% 20%, rgba(255, 225, 205, 0.08), transparent 14%),
+                  radial-gradient(circle at 80% 10%, rgba(255, 253, 232, 0.06), transparent 18%),
+                  linear-gradient(180deg, rgba(15, 11, 20, 0.98), rgba(6, 4, 8, 0.95));
+    }
+
+    .section-background::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background-image: radial-gradient(circle, rgba(255,255,255,0.05) 0.5px, transparent 0.5px);
+      background-size: 18px 18px;
+      opacity: 0.16;
+    }
+
+    .heart-outline {
+      position: absolute;
+      width: 56px;
+      height: 56px;
+      border-radius: 50% 50% 50% 50%;
+      transform: rotate(45deg);
+      border: 1.4px solid rgba(255,255,255,0.22);
+      box-shadow: 0 0 20px rgba(255,255,255,0.08);
+      opacity: 0.95;
+      background: radial-gradient(circle at 30% 30%, rgba(255,255,255,0.12), transparent 45%);
+    }
+
+    .heart-outline::before,
+    .heart-outline::after {
+      content: "";
+      position: absolute;
+      width: 56px;
+      height: 56px;
+      border-radius: 50%;
+      background: inherit;
+      top: -28px;
+      left: 0;
+    }
+
+    .heart-outline::after {
+      left: 28px;
+      top: 0;
+    }
+
+    .heart-trail {
+      position: absolute;
+      width: 24px;
+      height: 24px;
+      opacity: 0.7;
+      pointer-events: none;
+      background: radial-gradient(circle, rgba(255, 207, 171, 0.92), transparent 55%);
+      border-radius: 50%;
+      filter: blur(2px);
+      mix-blend-mode: screen;
+    }
+
+  </style>
+</head>
+<body>
+  <main id="stage">
+    <div class="progress-bar" aria-hidden="true">
+      <span id="progress-label">1 / 20</span>
+      <div class="progress-line"><div class="progress-fill" id="progress-fill"></div></div>
+    </div>
+
+    <section id="screen-1" class="screen active">
+      <div class="section-background"></div>
+      <div class="panel">
+        <div class="text-block">
+          <span class="line delay-1 title">Hey.</span>
+          <span class="line delay-2 subtitle">Before you continue...</span>
+          <span class="line delay-3 subtitle">This is not a normal message.</span>
+          <span class="line delay-4 subtitle">I could have just sent you a text.</span>
+          <span class="line delay-5 subtitle">But where's the fun in that?</span>
+        </div>
+        <button id="enter-button" class="primary">Enter</button>
+      </div>
+    </section>
+
+    <section id="screen-2" class="screen">
+      <div class="section-background"></div>
+      <div class="panel">
+        <div class="text-block">
+          <span class="line delay-1 title">I made something.</span>
+          <span class="line delay-2 subtitle">Actually...</span>
+          <span class="line delay-3 subtitle">I made something for someone.</span>
+          <span class="line delay-4 subtitle">Someone who is...</span>
+          <span class="line delay-5 subtitle">Very pretty.</span>
+          <span class="line delay-6 subtitle">Very interesting.</span>
+          <span class="line delay-7 subtitle">Very easy to notice.</span>
+          <span class="line delay-8 subtitle">And slightly difficult to stop thinking about.</span>
+          <span class="line delay-9 subtitle">I wonder if you know who.</span>
+        </div>
+        <button id="guess-button" class="primary">I have a guess</button>
+      </div>
+    </section>
+
+    <section id="screen-3" class="screen">
+      <div class="section-background"></div>
+      <div class="panel">
+        <div class="glass-panel">
+          <div>
+            <p class="subtitle">PRIVATE</p>
+            <h2 class="title">Subject: <span id="subject-name">HER NAME</span></h2>
+          </div>
+          <div class="file-rows">
+            <div class="file-row"><strong>Appearance</strong><span>Highly distracting</span></div>
+            <div class="file-row"><strong>Smile</strong><span>Potentially dangerous</span></div>
+            <div class="file-row"><strong>Personality</strong><span>Increasingly interesting</span></div>
+            <div class="file-row"><strong>Conversation quality</strong><span>Difficult to stop</span></div>
+            <div class="file-row"><strong>Effect</strong><span>Under investigation</span></div>
+          </div>
+          <p class="tiny-note">Reason this file exists: Classified.</p>
+          <button id="unlock-button" class="unlock-button">Unlock classified information</button>
+          <div id="unlock-copy" class="hidden-panel">
+            <p>Because I wanted to make you smile.</p>
+            <p>And because I had an idea.</p>
+          </div>
+          <button id="screen-3-next" class="primary hidden-panel" data-next="screen-4">Continue</button>
+        </div>
+      </div>
+    </section>
+
+    <section id="screen-4" class="screen">
+      <div class="section-background"></div>
+      <div class="panel">
+        <div class="text-block">
+          <span class="line delay-1 title">I could have said...</span>
+          <span class="line delay-2 subtitle">You're beautiful.</span>
+          <span class="line delay-3 subtitle">But that's obvious.</span>
+          <span class="line delay-4 subtitle">You're pretty.</span>
+          <span class="line delay-5 subtitle">Also obvious.</span>
+          <span class="line delay-6 subtitle">But there's something I like more.</span>
+          <span class="line delay-7 subtitle">You're interesting.</span>
+          <span class="line delay-8 subtitle">And I genuinely enjoy talking to you.</span>
+          <span class="line delay-9 subtitle">That's the part I wanted you to know.</span>
+        </div>
+        <button data-next="screen-5" class="primary">Keep going</button>
+      </div>
+    </section>
+
+    <section id="screen-5" class="screen">
+      <div class="section-background"></div>
+      <div class="panel">
+        <div class="text-block">
+          <span class="line delay-1 title">A few small things.</span>
+          <span class="line delay-2 subtitle">Tap each heart to see what I keep remembering.</span>
+        </div>
+        <div class="heart-grid" id="heart-grid">
+          <div class="heart-item" data-message="Still one of my favourite things about you."><strong>Your smile.</strong><p class="hidden-copy"></p></div>
+          <div class="heart-item" data-message="I had a sentence prepared. It disappeared."><strong>Your eyes.</strong><p class="hidden-copy"></p></div>
+          <div class="heart-item" data-message="Some conversations are better simply because you're part of them."><strong>Your voice.</strong><p class="hidden-copy"></p></div>
+          <div class="heart-item" data-message="This might actually be more dangerous than how pretty you are."><strong>Your personality.</strong><p class="hidden-copy"></p></div>
+          <div class="heart-item" data-message="I'd like to hear it more often."><strong>Your laugh.</strong><p class="hidden-copy"></p></div>
+          <div class="heart-item" data-message="Some people make an ordinary evening feel different."><strong>Your presence.</strong><p class="hidden-copy"></p></div>
+          <div class="heart-item" data-message="I think I'm getting a little too comfortable talking to you."><strong>The problem.</strong><p class="hidden-copy"></p></div>
+          <div class="heart-item" data-message="Maybe I just want to spend more time with you."><strong>The reason.</strong><p class="hidden-copy"></p></div>
+          <div class="heart-item" id="final-heart" data-message="There's a little more to this."><strong>There's more.</strong><p class="hidden-copy"></p></div>
+        </div>
+        <p class="hint-block">Some hearts are quiet until you tap enough of them.</p>
+        <button id="screen-5-next" class="primary hidden-panel" data-next="screen-6">Continue</button>
+      </div>
+    </section>
+
+    <section id="screen-6" class="screen">
+      <div class="section-background"></div>
+      <div class="panel">
+        <div class="text-block">
+          <span class="line delay-1 title">So...</span>
+          <span class="line delay-2 subtitle">I have a small plan.</span>
+          <span class="line delay-3 subtitle">Actually...</span>
+          <span class="line delay-4 subtitle">Two plans.</span>
+          <span class="line delay-5 subtitle">The first one starts in <span class="accent-text" id="city-name">Noida</span>.</span>
+        </div>
+        <button data-next="screen-7" class="primary">Tell me</button>
+      </div>
+    </section>
+
+    <section id="screen-7" class="screen">
+      <div class="section-background" style="background: radial-gradient(circle at 20% 12%, rgba(255, 222, 201, 0.12), transparent 16%), radial-gradient(circle at 85% 15%, rgba(255, 255, 255, 0.08), transparent 18%), linear-gradient(180deg, #09060d 0%, #050203 100%);"></div>
+      <div class="panel">
+        <div class="text-block">
+          <span class="line delay-1 title title-trigger" id="noida-title">NOIDA</span>
+          <span class="line delay-2 subtitle">Come here.</span>
+          <span class="line delay-3 subtitle">Just for an evening.</span>
+          <span class="line delay-4 subtitle">I want to cook something for you.</span>
+          <span class="line delay-5 subtitle">Yes.</span>
+          <span class="line delay-6 subtitle">I actually want to cook for you myself.</span>
+          <span class="line delay-7 subtitle">No restaurant.</span>
+          <span class="line delay-8 subtitle">No complicated plan.</span>
+          <span class="line delay-9 subtitle">Just a comfortable evening.</span>
+        </div>
+        <button data-next="screen-8" class="primary">Continue</button>
+      </div>
+    </section>
+
+    <section id="screen-8" class="screen">
+      <div class="section-background" style="background: radial-gradient(circle at 17% 18%, rgba(255,211,182,0.14), transparent 15%), linear-gradient(180deg, rgba(12,8,10,0.92), rgba(4,2,4,0.96));"></div>
+      <div class="panel">
+        <div class="text-block">
+          <span class="line delay-1 title">Now you get to decide.</span>
+          <span class="line delay-2 subtitle">If you're coming over, I need one very important piece of information.</span>
+          <span class="line delay-3 subtitle accent-text">What do you want me to cook?</span>
+        </div>
+        <div class="grid-2">
+          <button class="card card-button" data-food="MUTTON"><strong>MUTTON</strong><span>Rich and careful, made for a relaxed evening.</span></button>
+          <button class="card card-button" data-food="CHICKEN"><strong>CHICKEN</strong><span>Comforting and warm, with a little extra attention.</span></button>
+        </div>
+        <button class="card card-button" data-food="SURPRISE"><strong>Surprise me.</strong><span>Give me permission to choose something that fits the mood.</span></button>
+        <div id="food-feedback" class="choice-note" style="display:none;"></div>
+        <div id="spice-panel" class="hidden-panel">
+          <p class="subtitle">Perfect. How spicy?</p>
+          <div class="button-grid three" id="spice-options">
+            <button class="action-btn" data-spice="Mild">Mild</button>
+            <button class="action-btn" data-spice="Medium">Medium</button>
+            <button class="action-btn" data-spice="Make it interesting">Make it interesting</button>
+            <button class="action-btn" data-spice="Chef's choice">Chef's choice</button>
+          </div>
+        </div>
+        <button id="screen-8-next" class="primary hidden-panel" data-next="screen-9">Continue</button>
+      </div>
+    </section>
+
+    <section id="screen-9" class="screen">
+      <div class="section-background" style="background: radial-gradient(circle at 22% 16%, rgba(255,210,180,0.12), transparent 16%), linear-gradient(180deg, rgba(18,12,16,0.95), rgba(6,3,6,0.97));"></div>
+      <div class="panel">
+        <div class="text-block">
+          <span class="line delay-1 title">Wait.</span>
+          <span class="line delay-2 subtitle">One more important question.</span>
+          <span class="line delay-3 subtitle">What's your drink of choice?</span>
+        </div>
+        <div class="button-grid three">
+          <button class="action-btn" data-drink="Something cold">Something cold</button>
+          <button class="action-btn" data-drink="Something warm">Something warm</button>
+          <button class="action-btn" data-drink="Something fruity">Something fruity</button>
+          <button class="action-btn" data-drink="Something fizzy">Something fizzy</button>
+          <button class="action-btn" data-drink="Coffee">Coffee</button>
+          <button class="action-btn" data-drink="Your choice">Your choice</button>
+          <button class="action-btn" data-drink="Surprise me">Surprise me</button>
+        </div>
+        <div id="drink-feedback" class="choice-note" style="display:none;"></div>
+        <div class="glass-panel" style="margin-top:1rem;">
+          <label for="drink-note" class="subtitle">Anything else you want?</label>
+          <input type="text" id="drink-note" placeholder="Tell me..." autocomplete="off" />
+        </div>
+        <button data-next="screen-10" class="primary">Continue</button>
+      </div>
+    </section>
+
+    <section id="screen-10" class="screen">
+      <div class="section-background" style="background: radial-gradient(circle at 25% 18%, rgba(255, 210, 178, 0.12), transparent 16%), linear-gradient(180deg, #080405 0%, #0f070a 100%);"></div>
+      <div class="panel">
+        <div class="image-frame">
+          <div class="candle-glow"></div>
+          <div class="scene-card">
+            <h2>Imagine this.</h2>
+            <div class="scene-windows">
+              <div class="window"><strong>The night you arrive.</strong><p>I'll already be in the kitchen.</p></div>
+              <div class="window"><strong>Your food will be waiting.</strong><p>Your drink will be ready.</p></div>
+            </div>
+            <div class="scene-windows">
+              <div class="window"><strong>And I'll probably be pretending I'm not nervous.</strong><p>Whether you like the food.</p></div>
+              <div class="window"><strong>Because apparently cooking for someone you like is a serious responsibility.</strong><p>But honestly...</p></div>
+            </div>
+          </div>
+        </div>
+        <div class="glass-panel">
+          <p class="subtitle">But honestly...</p>
+          <p class="accent-text">I'd enjoy making it for you.</p>
+        </div>
+        <button data-next="screen-11" class="primary">Continue</button>
+      </div>
+    </section>
+
+    <section id="screen-11" class="screen">
+      <div class="section-background"></div>
+      <div class="panel">
+        <div class="text-block">
+          <span class="line delay-1 title">Okay.</span>
+          <span class="line delay-2 subtitle">Now the interesting part.</span>
+          <span class="line delay-3 subtitle">You thought the plan ended there?</span>
+        </div>
+        <button id="continue-button" class="primary">Continue</button>
+      </div>
+    </section>
+
+    <section id="screen-12" class="screen">
+      <div class="section-background" style="background: radial-gradient(circle at 40% 10%, rgba(220, 215, 255, 0.12), transparent 16%), linear-gradient(180deg, #05050d 0%, #020101 100%);"></div>
+      <div class="panel">
+        <div class="text-block">
+          <span class="line delay-1 title">SHIMLA</span>
+          <span class="line delay-2 subtitle">Yes.</span>
+          <span class="line delay-3 subtitle">Shimla.</span>
+          <span class="line delay-4 subtitle">I want to take you there.</span>
+          <span class="line delay-5 subtitle">After Noida...</span>
+          <span class="line delay-6 subtitle">we go somewhere colder.</span>
+          <span class="line delay-7 subtitle">Somewhere quieter.</span>
+          <span class="line delay-8 subtitle">Somewhere with mountains.</span>
+          <span class="line delay-9 subtitle">Somewhere we can escape the usual routine for a little while.</span>
+        </div>
+        <button data-next="screen-13" class="primary">Show me</button>
+      </div>
+    </section>
+
+    <section id="screen-13" class="screen">
+      <div class="section-background"></div>
+      <div class="panel">
+        <div class="text-block">
+          <span class="line delay-1 title">The Shimla story.</span>
+          <span class="line delay-2 subtitle">A little journey, one step at a time.</span>
+        </div>
+        <div class="timeline" id="timeline">
+          <div class="timeline-step"><strong>Leave the city behind.</strong><p>We drive away from the usual noise and slow the pace.</p></div>
+          <div class="timeline-step"><strong>Roads getting quieter.</strong><p>The air starts to feel softer.</p></div>
+          <div class="timeline-step"><strong>Mountains getting closer.</strong><p>The view changes with every turn.</p></div>
+          <div class="timeline-step"><strong>Cold air.</strong><p>The kind you notice in a good way.</p></div>
+          <div class="timeline-step"><strong>Warm clothes.</strong><p>Comfortable layers, a simple plan.</p></div>
+          <div class="timeline-step"><strong>Good food.</strong><p>Simple, satisfying, just right for the moment.</p></div>
+          <div class="timeline-step"><strong>Long conversations.</strong><p>Not forced, just the kind that feel easy.</p></div>
+          <div class="timeline-step"><strong>Views worth stopping for.</strong><p>There will be places where we pause and just look.</p></div>
+          <div class="timeline-step"><strong>One really beautiful evening.</strong><p>Nothing dramatic, just the kind of night that stays with you.</p></div>
+          <div class="timeline-step"><strong>And you.</strong><p>That is the part that makes it worth it.</p></div>
+        </div>
+        <div class="glow-dot" id="shimla-dot" style="bottom: 2.8rem; right: 3rem;"></div>
+        <button data-next="screen-14" class="primary">Continue</button>
+      </div>
+    </section>
+
+    <section id="screen-14" class="screen">
+      <div class="section-background" style="background: radial-gradient(circle at 20% 12%, rgba(212, 235, 255, 0.09), transparent 18%), linear-gradient(180deg, #04050e 0%, #07030a 100%);"></div>
+      <div class="panel">
+        <div class="text-block">
+          <span class="line delay-1 title">And then...</span>
+          <span class="line delay-2 subtitle">One night in Shimla.</span>
+          <span class="line delay-3 subtitle">No rush.</span>
+          <span class="line delay-4 subtitle">No schedule.</span>
+          <span class="line delay-5 subtitle">No noise.</span>
+          <span class="line delay-6 subtitle">Just cold air, warm conversations and somewhere beautiful to be.</span>
+          <span class="line delay-7 subtitle">That sounds like a pretty good plan to me.</span>
+        </div>
+        <button data-next="screen-15" class="primary">Continue</button>
+      </div>
+    </section>
+
+    <section id="screen-15" class="screen">
+      <div class="section-background"></div>
+      <div class="panel">
+        <div class="text-block">
+          <span class="line delay-1 title">But I don't want this to be only my plan.</span>
+          <span class="line delay-2 subtitle">I want it to be ours.</span>
+          <span class="line delay-3 subtitle">What kind of evening would you choose?</span>
+        </div>
+        <div class="button-grid three" id="style-options">
+          <button class="action-btn" data-choice="Quiet and cozy">Quiet and cozy</button>
+          <button class="action-btn" data-choice="Adventure">Adventure</button>
+          <button class="action-btn" data-choice="Food and conversations">Food and conversations</button>
+          <button class="action-btn" data-choice="Explore everything">Explore everything</button>
+          <button class="action-btn" data-choice="Do absolutely nothing">Do absolutely nothing</button>
+          <button class="action-btn" data-choice="Let the evening decide">Let the evening decide</button>
+        </div>
+        <div id="style-feedback" class="choice-note" style="display:none;"></div>
+        <button data-next="screen-16" class="primary">Continue</button>
+      </div>
+    </section>
+
+    <section id="screen-16" class="screen">
+      <div class="section-background"></div>
+      <div class="panel">
+        <div class="text-block">
+          <span class="line delay-1 title">I can't promise everything will go exactly according to plan.</span>
+          <span class="line delay-2 subtitle">But I can promise this...</span>
+          <span class="line delay-3 subtitle">I'll try to make it a beautiful memory.</span>
+          <span class="line delay-4 subtitle">I'll make sure you're comfortable.</span>
+          <span class="line delay-5 subtitle">I'll make sure you have fun.</span>
+          <span class="line delay-6 subtitle">And I'll probably try very hard to make you laugh.</span>
+        </div>
+        <button data-next="screen-17" class="primary">Continue</button>
+      </div>
+    </section>
+
+    <section id="screen-17" class="screen">
+      <div class="section-background"></div>
+      <div class="panel">
+        <div class="text-block">
+          <span class="line delay-1 title">So...</span>
+          <span class="line delay-2 subtitle">Would you give me an evening?</span>
+          <span class="line delay-3 subtitle">Maybe two.</span>
+          <span class="line delay-4 subtitle">One in Noida.</span>
+          <span class="line delay-5 subtitle">And one somewhere in the mountains.</span>
+          <span class="line delay-6 subtitle">No pressure.</span>
+          <span class="line delay-7 subtitle">Just something I'd genuinely love to experience with you.</span>
+        </div>
+        <button data-next="screen-18" class="primary">Continue</button>
+      </div>
+    </section>
+
+    <section id="screen-18" class="screen">
+      <div class="section-background"></div>
+      <div class="panel">
+        <div class="final-box">
+          <h1>Come to <span class="accent-text" id="city-name-2">Noida</span>.</h1>
+          <p>Let me cook for you.</p>
+          <p>Tell me what you want to eat.</p>
+          <p>Tell me what you want to drink.</p>
+          <p>Let me plan the rest.</p>
+          <p>And if you're up for it...</p>
+          <p>Let's take the story to <span class="accent-text" id="destination-name">Shimla</span>.</p>
+          <div class="button-grid two" style="margin-top:1.5rem;">
+            <button id="accept-button" class="primary">Okay, let's do it.</button>
+            <button id="more-button" class="secondary">Tell me more first</button>
+          </div>
+          <div id="more-copy" class="hidden-panel" style="margin-top:1rem;">
+            <p>I'll tell you the details.</p>
+            <p>But I wanted you to know the important part first.</p>
+            <p>I want to see you.</p>
+            <p>I want to spend time with you.</p>
+            <p>I want to make you smile.</p>
+            <p>The rest... We'll figure out together.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="screen-19" class="screen">
+      <div class="section-background"></div>
+      <div class="panel">
+        <div class="final-box">
+          <h1>Okay.</h1>
+          <p>Then it's a plan.</p>
+          <p>I'll handle the cooking.</p>
+          <p>You choose the food.</p>
+          <p>You choose the drink.</p>
+          <p>I'll handle the rest.</p>
+          <p>And Shimla... We'll save that adventure for later.</p>
+          <p>One evening at a time.</p>
+          <button data-next="screen-20" class="primary">One last thing</button>
+        </div>
+      </div>
+    </section>
+
+    <section id="screen-20" class="screen">
+      <div class="section-background"></div>
+      <div class="panel">
+        <div class="final-box" style="text-align:center;">
+          <div class="heart-outline" style="margin:0 auto 1.5rem; width:100px; height:100px;"></div>
+          <p style="margin-bottom:1rem;">I could have just sent you a message.</p>
+          <p style="margin-bottom:1rem;">But I wanted to make you something.</p>
+          <p style="margin-bottom:1rem;">Because you're not exactly someone I'd like to treat ordinarily.</p>
+          <p style="margin-bottom:1rem;">You're special.</p>
+          <p style="margin-bottom:1rem;">And I'd really like to see you.</p>
+          <p style="margin-bottom:1.5rem;">So... Whenever you're ready.</p>
+          <p style="font-size:1.1rem; letter-spacing:0.04em;" id="final-name">MY NAME</p>
+          <p class="tiny-note">Waiting for your answer.</p>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <script>
+    // ================ PERSONALIZE THIS =================
+    const CONFIG = {
+      girlName: "HER NAME",
+      myName: "MY NAME",
+      city: "Noida",
+      destination: "Shimla"
+    };
+    // ====================================================
+
+    const state = {
+      current: 1,
+      lastSection: 20,
+      openedHearts: 0,
+      food: null,
+      spice: null,
+      drink: null,
+      drinkNote: "",
+      styleChoice: null,
+      noidaTapCount: 0,
+      surpriseUnlock: false,
+      shimlaDotTapped: false,
+    };
+
+    const sectionOrder = [
+      'screen-1','screen-2','screen-3','screen-4','screen-5','screen-6','screen-7','screen-8','screen-9','screen-10','screen-11','screen-12','screen-13','screen-14','screen-15','screen-16','screen-17','screen-18','screen-19','screen-20'
+    ];
+
+    const progressLabel = document.getElementById('progress-label');
+    const progressFill = document.getElementById('progress-fill');
+    const noidaTitle = document.getElementById('noida-title');
+    const cityName = document.getElementById('city-name');
+    const cityName2 = document.getElementById('city-name-2');
+    const destinationName = document.getElementById('destination-name');
+    const subjectName = document.getElementById('subject-name');
+    const finalName = document.getElementById('final-name');
+
+    function updateTextContent() {
+      subjectName.textContent = CONFIG.girlName;
+      cityName.textContent = CONFIG.city;
+      cityName2.textContent = CONFIG.city;
+      destinationName.textContent = CONFIG.destination;
+      if (finalName) {
+        finalName.textContent = CONFIG.myName;
+      }
+      const noidaTitleText = noidaTitle.textContent;
+      if (noidaTitleText !== CONFIG.city.toUpperCase()) {
+        noidaTitle.textContent = CONFIG.city.toUpperCase();
+      }
+    }
+
+    function updateProgress() {
+      progressLabel.textContent = `${state.current} / ${state.lastSection}`;
+      progressFill.style.width = `${((state.current - 1) / (state.lastSection - 1)) * 100}%`;
+    }
+
+    function showSection(id) {
+      document.querySelectorAll('.screen').forEach((section) => {
+        section.classList.remove('active');
+      });
+      const target = document.getElementById(id);
+      if (target) {
+        target.classList.add('active');
+        state.current = sectionOrder.indexOf(id) + 1;
+        updateProgress();
+        triggerSectionEffects(id);
+      }
+    }
+
+    function triggerSectionEffects(id) {
+      if (id === 'screen-13') {
+        const steps = document.querySelectorAll('.timeline-step');
+        steps.forEach((step, index) => {
+          setTimeout(() => step.classList.add('active'), 250 + index * 120);
+        });
+      }
+      if (id === 'screen-5') {
+        state.openedHearts = 0;
+        document.querySelector('#final-heart').classList.remove('opened');
+        document.querySelector('#final-heart .hidden-copy').textContent = '';
+      }
+      if (id === 'screen-20') {
+        createHeartTrail(window.innerWidth / 2, window.innerHeight / 2, 12);
+      }
+      if (id === 'screen-14') {
+        createParticleField(24);
+      }
+    }
+
+    function createParticleField(amount) {
+      for (let i = 0; i < amount; i++) {
+        const particle = document.createElement('div');
+        particle.className = 'particle';
+        const size = 6 + Math.random() * 10;
+        particle.style.width = `${size}px`;
+        particle.style.height = `${size}px`;
+        particle.style.left = `${Math.random() * window.innerWidth}px`;
+        particle.style.top = `${Math.random() * window.innerHeight}px`;
+        particle.style.background = `rgba(255, 255, 255, ${0.06 + Math.random() * 0.12})`;
+        particle.style.setProperty('--tx', `${Math.random() * 80 - 40}px`);
+        particle.style.setProperty('--ty', `${Math.random() * -120 - 30}px`);
+        document.body.appendChild(particle);
+        setTimeout(() => particle.remove(), 900);
+      }
+    }
+
+    function createHeartTrail(x, y, count = 8) {
+      for (let i = 0; i < count; i++) {
+        const trail = document.createElement('div');
+        trail.className = 'heart-trail';
+        trail.style.left = `${x}px`;
+        trail.style.top = `${y}px`;
+        const offsetX = (Math.random() - 0.5) * 120;
+        const offsetY = (Math.random() - 0.5) * 120;
+        trail.style.transform = `translate3d(0,0,0)`;
+        trail.style.opacity = '0.7';
+        trail.animate([
+          { transform: 'translate3d(0,0,0)', opacity: 0.8 },
+          { transform: `translate3d(${offsetX}px, ${offsetY}px, 0)`, opacity: 0 }
+        ], {
+          duration: 700 + Math.random() * 200,
+          easing: 'ease-out'
+        });
+        document.body.appendChild(trail);
+        setTimeout(() => trail.remove(), 900);
+      }
+    }
+
+    function createClickHearts(event) {
+      const rect = document.body.getBoundingClientRect();
+      const x = event.clientX || rect.width / 2;
+      const y = event.clientY || rect.height / 2;
+      createHeartTrail(x, y, 7);
+    }
+
+    function attachButtonActions() {
+      document.getElementById('enter-button').addEventListener('click', (event) => {
+        createClickHearts(event);
+        showSection('screen-2');
+      });
+      document.getElementById('guess-button').addEventListener('click', (event) => {
+        createClickHearts(event);
+        showSection('screen-3');
+      });
+      document.getElementById('unlock-button').addEventListener('click', (event) => {
+        const button = event.currentTarget;
+        button.classList.add('active');
+        setTimeout(() => button.classList.remove('active'), 900);
+        document.getElementById('unlock-copy').classList.add('open');
+        document.getElementById('screen-3-next').classList.add('open');
+      });
+      document.querySelectorAll('[data-next]').forEach((button) => {
+        button.addEventListener('click', (event) => {
+          const next = event.currentTarget.dataset.next;
+          createClickHearts(event);
+          showSection(next);
+        });
+      });
+      document.getElementById('continue-button').addEventListener('click', () => showSection('screen-12'));
+      document.getElementById('more-button').addEventListener('click', () => {
+        document.getElementById('more-copy').classList.toggle('open');
+      });
+      document.getElementById('accept-button').addEventListener('click', () => {
+        showSection('screen-19');
+      });
+      document.getElementById('noida-title').addEventListener('click', () => {
+        state.noidaTapCount += 1;
+        if (state.noidaTapCount >= 3) {
+          state.noidaTapCount = 0;
+          alert('Okay, you\'re curious. Good. Because I\'m planning something nice.');
+        }
+      });
+      document.getElementById('shimla-dot').addEventListener('click', () => {
+        if (!state.shimlaDotTapped) {
+          state.shimlaDotTapped = true;
+          alert('Maybe this is where we take a picture together.');
+        }
+      });
+    }
+
+    function attachHeartWall() {
+      const hearts = document.querySelectorAll('.heart-item');
+      hearts.forEach((heart) => {
+        heart.addEventListener('click', (event) => {
+          const message = heart.dataset.message;
+          const copy = heart.querySelector('.hidden-copy');
+          copy.textContent = message;
+          heart.classList.add('opened');
+          createClickHearts(event);
+          if (!heart.dataset.opened) {
+            heart.dataset.opened = 'true';
+            state.openedHearts += 1;
+          }
+          if (state.openedHearts >= 6) {
+            const finalHeart = document.getElementById('final-heart');
+            finalHeart.classList.add('opened');
+            finalHeart.querySelector('.hidden-copy').textContent = 'What comes next is a small plan just for you.';
+            document.getElementById('screen-5-next').classList.add('open');
+          }
+        });
+      });
+    }
+
+    function attachFoodActions() {
+      const foodButtons = document.querySelectorAll('[data-food]');
+      const feedback = document.getElementById('food-feedback');
+      const spicePanel = document.getElementById('spice-panel');
+      const spiceButtons = document.querySelectorAll('[data-spice]');
+      foodButtons.forEach((button) => {
+        button.addEventListener('click', (event) => {
+          const choice = event.currentTarget.dataset.food;
+          state.food = choice;
+          foodButtons.forEach((btn) => btn.classList.toggle('selected', btn === event.currentTarget));
+          if (choice === 'SURPRISE') {
+            feedback.textContent = 'Okay. Now you\'ve given me permission to show off.';
+          } else {
+            feedback.textContent = choice === 'MUTTON' ? 'Noted. Looks like I have some serious cooking to do.' : 'Good choice. I\'ll make sure it is worth coming all the way here for.';
+          }
+          feedback.style.display = 'block';
+          spicePanel.classList.add('open');
+          createClickHearts(event);
+        });
+      });
+      spiceButtons.forEach((button) => {
+        button.addEventListener('click', (event) => {
+          state.spice = event.currentTarget.dataset.spice;
+          spiceButtons.forEach((btn) => btn.classList.toggle('selected', btn === event.currentTarget));
+          document.getElementById('screen-8-next').classList.add('open');
+          createClickHearts(event);
+        });
+      });
+    }
+
+    function attachDrinkActions() {
+      const drinkButtons = document.querySelectorAll('[data-drink]');
+      const feedback = document.getElementById('drink-feedback');
+      drinkButtons.forEach((button) => {
+        button.addEventListener('click', (event) => {
+          state.drink = event.currentTarget.dataset.drink;
+          drinkButtons.forEach((btn) => btn.classList.toggle('selected', btn === event.currentTarget));
+          feedback.textContent = 'Noted. I\'ll remember that.';
+          feedback.style.display = 'block';
+          createClickHearts(event);
+        });
+      });
+      document.getElementById('drink-note').addEventListener('input', (event) => {
+        state.drinkNote = event.target.value;
+      });
+    }
+
+    function attachStyleOptions() {
+      const options = document.querySelectorAll('[data-choice]');
+      const feedback = document.getElementById('style-feedback');
+      options.forEach((button) => {
+        button.addEventListener('click', (event) => {
+          state.styleChoice = event.currentTarget.dataset.choice;
+          options.forEach((btn) => btn.classList.toggle('selected', btn === event.currentTarget));
+          feedback.textContent = 'Then that\'s what we\'ll do.';
+          feedback.style.display = 'block';
+          createClickHearts(event);
+        });
+      });
+    }
+
+    function bindNavigationButtons() {
+      const navButtons = document.querySelectorAll('[data-next]');
+      navButtons.forEach((button) => {
+        button.addEventListener('click', () => {
+          const next = button.dataset.next;
+          if (next && document.getElementById(next)) {
+            showSection(next);
+          }
+        });
+      });
+    }
+
+    function initialize() {
+      updateTextContent();
+      attachButtonActions();
+      attachHeartWall();
+      attachFoodActions();
+      attachDrinkActions();
+      attachStyleOptions();
+      updateProgress();
+      document.addEventListener('click', (event) => {
+        if (event.target.closest('button')) {
+          if (event.target.matches('button') && event.target.classList.contains('small')) {
+            createClickHearts(event);
+          }
+        }
+      });
+    }
+
+    initialize();
+  </script>
+</body>
+</html>
