@@ -190,11 +190,11 @@
         <p>Just a comfortable evening.</p>
         <p style="margin-top: 1.5rem; font-size: 1rem;">What would you want?</p>
         <div class="grid">
-          <button onclick="selectFood('Mutton', 'screen-4-food')">Mutton</button>
-          <button onclick="selectFood('Chicken', 'screen-4-food')">Chicken</button>
-          <button onclick="selectFood('Surprise', 'screen-4-food')">Surprise</button>
+          <button onclick="selectFood('Mutton')">Mutton</button>
+          <button onclick="selectFood('Chicken')">Chicken</button>
+          <button onclick="selectFood('Surprise')">Surprise</button>
         </div>
-        <button class="primary" id="screen-4-food" style="display:none; margin-top: 1rem;" onclick="goTo('screen-5')">Continue</button>
+        <button class="primary" style="margin-top: 1rem;" onclick="goTo('screen-5')">Continue</button>
       </div>
     </section>
 
@@ -203,12 +203,12 @@
       <div class="container">
         <h1>How spicy?</h1>
         <div class="grid">
-          <button onclick="selectSpice('Mild', 'screen-5-spice')">Mild</button>
-          <button onclick="selectSpice('Medium', 'screen-5-spice')">Medium</button>
-          <button onclick="selectSpice('Interesting', 'screen-5-spice')">Interesting</button>
-          <button onclick="selectSpice('Chef\'s call', 'screen-5-spice')">Chef's call</button>
+          <button onclick="selectSpice('Mild')">Mild</button>
+          <button onclick="selectSpice('Medium')">Medium</button>
+          <button onclick="selectSpice('Interesting')">Interesting</button>
+          <button onclick="selectSpice('Chef\'s call')">Chef's call</button>
         </div>
-        <button class="primary" id="screen-5-spice" style="display:none; margin-top: 1rem;" onclick="goTo('screen-6')">Continue</button>
+        <button class="primary" style="margin-top: 1rem;" onclick="goTo('screen-6')">Continue</button>
       </div>
     </section>
 
@@ -217,13 +217,13 @@
       <div class="container">
         <h1>And what to drink?</h1>
         <div class="grid">
-          <button onclick="selectDrink('Cold', 'screen-6-drink')">Cold</button>
-          <button onclick="selectDrink('Warm', 'screen-6-drink')">Warm</button>
-          <button onclick="selectDrink('Fruity', 'screen-6-drink')">Fruity</button>
-          <button onclick="selectDrink('Coffee', 'screen-6-drink')">Coffee</button>
-          <button onclick="selectDrink('Surprise', 'screen-6-drink')">Surprise</button>
+          <button onclick="selectDrink('Cold')">Cold</button>
+          <button onclick="selectDrink('Warm')">Warm</button>
+          <button onclick="selectDrink('Fruity')">Fruity</button>
+          <button onclick="selectDrink('Coffee')">Coffee</button>
+          <button onclick="selectDrink('Surprise')">Surprise</button>
         </div>
-        <button class="primary" id="screen-6-drink" style="display:none; margin-top: 1rem;" onclick="goTo('screen-7')">Continue</button>
+        <button class="primary" style="margin-top: 1rem;" onclick="goTo('screen-7')">Continue</button>
       </div>
     </section>
 
@@ -244,14 +244,14 @@
         <h1>What kind of evening?</h1>
         <p>What sounds best to you?</p>
         <div class="grid">
-          <button onclick="selectStyle('Quiet', 'screen-8-style')">Quiet</button>
-          <button onclick="selectStyle('Adventure', 'screen-8-style')">Adventure</button>
-          <button onclick="selectStyle('Food & talk', 'screen-8-style')">Food & talk</button>
-          <button onclick="selectStyle('Explore', 'screen-8-style')">Explore</button>
-          <button onclick="selectStyle('Nothing', 'screen-8-style')">Nothing</button>
-          <button onclick="selectStyle('Decide', 'screen-8-style')">Decide</button>
+          <button onclick="selectStyle('Quiet')">Quiet</button>
+          <button onclick="selectStyle('Adventure')">Adventure</button>
+          <button onclick="selectStyle('Food & talk')">Food & talk</button>
+          <button onclick="selectStyle('Explore')">Explore</button>
+          <button onclick="selectStyle('Nothing')">Nothing</button>
+          <button onclick="selectStyle('Decide')">Decide</button>
         </div>
-        <button class="primary" id="screen-8-style" style="display:none; margin-top: 1rem;" onclick="goTo('screen-9')">Continue</button>
+        <button class="primary" style="margin-top: 1rem;" onclick="goTo('screen-9')">Continue</button>
       </div>
     </section>
 
@@ -300,32 +300,28 @@
       window.scrollTo(0, 0);
     }
 
-    function selectFood(choice, buttonId) {
+    function selectFood(choice) {
       state.food = choice;
       document.querySelectorAll('[onclick*="selectFood"]').forEach(btn => btn.classList.remove('selected'));
       event.target.classList.add('selected');
-      document.getElementById(buttonId).style.display = 'block';
     }
 
-    function selectSpice(choice, buttonId) {
+    function selectSpice(choice) {
       state.spice = choice;
       document.querySelectorAll('[onclick*="selectSpice"]').forEach(btn => btn.classList.remove('selected'));
       event.target.classList.add('selected');
-      document.getElementById(buttonId).style.display = 'block';
     }
 
-    function selectDrink(choice, buttonId) {
+    function selectDrink(choice) {
       state.drink = choice;
       document.querySelectorAll('[onclick*="selectDrink"]').forEach(btn => btn.classList.remove('selected'));
       event.target.classList.add('selected');
-      document.getElementById(buttonId).style.display = 'block';
     }
 
-    function selectStyle(choice, buttonId) {
+    function selectStyle(choice) {
       state.style = choice;
       document.querySelectorAll('[onclick*="selectStyle"]').forEach(btn => btn.classList.remove('selected'));
       event.target.classList.add('selected');
-      document.getElementById(buttonId).style.display = 'block';
     }
   </script>
 </body>
